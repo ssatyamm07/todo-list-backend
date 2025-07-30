@@ -23,10 +23,11 @@ npm install
 ```
 
 ### 3. Setup Environment Variables
-Ask the team lead for the `.env` file. Example structure:
+Ask me(Satyam) for the `.env` file, at the time when you will start working on it.
+example structre
 ```ini
-DATABASE_URL=your_neon_db_url
-JWT_SECRET=your_jwt_secret
+DATABASE_URL=neon_url(will share you soon)
+JWT_SECRET=your_jwt_secret(will share you soon)
 PORT=5000
 ```
 
