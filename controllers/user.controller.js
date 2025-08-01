@@ -13,15 +13,15 @@ const registerUser = (req, res) => {
   }
 
   if (!validateUsername(username)) {
-    return res.status(400).json({ message: 'Invalid username. Min 8 characters, alphabetic or alphanumeric.' });
+    return res.status(400).json({ message: 'Invalid username.' });
   }
 
   if (!validatePassword(password)) {
-    return res.status(400).json({ message: 'Invalid password. Min 8 characters with uppercase, number, special char.' });
+    return res.status(400).json({ message: 'Invalid password.' });
   }
 
   if (password !== retypePassword) {
-    return res.status(400).json({ message: 'Passwords do not match.' });
+    return res.status(400).json({ message: 'Passwords does not match.' });
   }
 
   const exists = users.find(u => u.username.toLowerCase() === username.toLowerCase());
