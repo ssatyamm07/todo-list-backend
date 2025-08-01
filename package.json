@@ -1,7 +1,7 @@
 {
   "name": "todo-list-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "📦 Todo List Backend – Team Contribution Guide\r ## 🧑‍🤝‍🧑 Team Members",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,6 +14,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -21,5 +22,13 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssatyamm07/todo-list-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ssatyamm07/todo-list-backend/issues"
+  },
+  "homepage": "https://github.com/ssatyamm07/todo-list-backend#readme"
 }
