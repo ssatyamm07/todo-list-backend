@@ -1,5 +1,3 @@
-// controllers/user.controller.js
-
 const { validateUsername, validatePassword } = require('../middleware/auth');
 
 let users = []; // In-memory store
