@@ -1,92 +1,82 @@
-const { validateUsername, validatePassword } = require('../middleware/auth');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import * as User from '../models/user.model.js';
 
-let users = []; // In-memory store
+const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-// Register
-const registerUser = (req, res) => {
-  const { username, password, retypePassword } = req.body;
+// Register a new user
+export const register = async (req, res) => {
+  const { username, email, password } = req.body;
 
-  if (!username || !password || !retypePassword) {
-    return res.status(400).json({ message: 'All fields are required.' });
+  try {
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const existingUser = await User.findUserByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({ message: 'User already exists.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.createUser(username, email, hashedPassword);
+
+    res.status(201).json({ message: 'User created successfully.', user });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ error: err.message });
   }
-
-  if (!validateUsername(username)) {
-    return res.status(400).json({ message: 'Invalid username.' });
-  }
-
-  if (!validatePassword(password)) {
-    return res.status(400).json({ message: 'Invalid password.' });
-  }
-
-  if (password !== retypePassword) {
-    return res.status(400).json({ message: 'Passwords does not match.' });
-  }
-
-  const exists = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-  if (exists) {
-    return res.status(409).json({ message: 'User already exists.' });
-  }
-
-  users.push({ username, password }); // storing password in plain text for now (since no hashing)
-  res.status(201).json({ message: 'User registered successfully.' });
 };
 
-// Login
-const loginUser = (req, res) => {
-  const { username, password } = req.body;
+// Login user
+export const login = async (req, res) => {
+  const { email, password } = req.body;
 
-  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-  if (!user) {
-    return res.status(401).json({ message: 'Invalid credentials.' });
+  try {
+    const user = await User.findUserByEmail(email);
+    if (!user) return res.status(400).json({ error: 'Invalid email' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
+
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
+
+    res.json({ message: 'Login successful', token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  res.json({ message: 'Login successful.' });
 };
 
-// Get All Users (hide password)
-const getAllUsers = (req, res) => {
-  const safeUsers = users.map(u => ({
-    username: u.username
-  }));
-  res.json(safeUsers);
+// Get all users (excluding passwords)
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.getAllUsers();
+    const safeUsers = users.map(({ id, username, email }) => ({ id, username, email }));
+    res.json(safeUsers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Update user
-const updateUser = (req, res) => {
-  const { username, newUsername, newPassword } = req.body;
+export const updateUser = async (req, res) => {
+  const { email, newUsername, newPassword } = req.body;
 
-  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-  if (!user) return res.status(404).json({ message: 'User not found.' });
+  try {
+    const user = await User.findUserByEmail(email);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
 
-  if (newUsername && !validateUsername(newUsername)) {
-    return res.status(400).json({ message: 'Invalid new username.' });
+    const updatedFields = {};
+
+    if (newUsername) updatedFields.username = newUsername;
+    if (newPassword) updatedFields.password = await bcrypt.hash(newPassword, 10);
+
+    await User.updateUser(user.id, updatedFields);
+    res.json({ message: 'User updated successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  if (newPassword && !validatePassword(newPassword)) {
-    return res.status(400).json({ message: 'Invalid new password.' });
-  }
-
-  if (newUsername) user.username = newUsername;
-  if (newPassword) user.password = newPassword;
-
-  res.json({ message: 'User updated successfully.' });
 };
 
 // Delete user
-const deleteUser = (req, res) => {
-  const { username } = req.body;
-
-  const index = users.findIndex(u => u.username.toLowerCase() === username.toLowerCase());
-  if (index === -1) return res.status(404).json({ message: 'User not found.' });
-
-  users.splice(index, 1);
-  res.json({ message: 'User deleted successfully.' });
-};
-
-module.exports = {
-  registerUser,
-  loginUser,
-  getAllUsers,
-  updateUser,
-  deleteUser
-};
+exp
