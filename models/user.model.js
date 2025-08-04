@@ -3,26 +3,18 @@ export default (sequelize, DataTypes) => {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: true
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-  }, {
-    tableName: 'Users',
+      allowNull: false
+    }
   });
-
-  User.associate = (models) => {
-    User.hasMany(models.Task, {
-      foreignKey: 'userId',
-      as: 'tasks',
-    });
-  };
 
   return User;
 };

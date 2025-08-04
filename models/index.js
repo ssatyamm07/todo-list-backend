@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
-dotenv.config(); // Load from .env
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,44 +12,52 @@ const __dirname = path.dirname(__filename);
 const db = {};
 const basename = path.basename(__filename);
 
-// Use Neon DB URL from .env
-const DATABASE_URL = process.env.DATABASE_URL;
-const sequelize = new Sequelize(DATABASE_URL, {
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // Needed for NeonDB
+      rejectUnauthorized: false, // For NeonDB
     },
   },
-  logging: false, // Disable SQL logging (optional)
+  logging: false, // Optional: turn off SQL logging
 });
 
-const files = fs.readdirSync(__dirname).filter(file => {
-  return (
-    file.indexOf('.') !== 0 &&
-    file !== basename &&
-    file.endsWith('.js') &&
-    !file.endsWith('.test.js')
-  );
-});
+// Load all model files except index.js and test files
+const files = fs.readdirSync(__dirname).filter(file =>
+  file.indexOf('.') !== 0 &&
+  file !== basename &&
+  file.endsWith('.js') &&
+  !file.endsWith('.test.js')
+);
 
+// Dynamically import and register models
 for (const file of files) {
-  console.log('Loading model file:', file);
-  const { default: modelDefiner } = await import(path.join(__dirname, file));
-  const model = modelDefiner(sequelize, Sequelize.DataTypes);
-  db[model.name] = model;
+  try {
+    console.log('Loading model file:', file);
+    const fullPath = path.join(__dirname, file);
+    const moduleURL = pathToFileURL(fullPath).href;
+    const { default: modelDefiner } = await import(moduleURL);
+    const model = modelDefiner(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  } catch (err) {
+    console.error(`❌ Error loading model file ${file}:`, err);
+  }
 }
 
+// Handle associations if defined
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
 
+// Attach sequelize instance and models to db object
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// Named exports for direct use
 export const Task = db.Task;
 export const User = db.User;
+
 export default db;

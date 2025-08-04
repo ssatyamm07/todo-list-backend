@@ -2,28 +2,13 @@ export default (sequelize, DataTypes) => {
   const Task = sequelize.define('Task', {
     title: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
-    description: {
-      type: DataTypes.TEXT,
-    },
-    status: {
+    completed: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-    dueDate: {
-      type: DataTypes.DATE,
-    },
-  }, {
-    tableName: 'Tasks',
+      defaultValue: false
+    }
   });
-
-  Task.associate = (models) => {
-    Task.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'user',
-    });
-  };
 
   return Task;
 };
