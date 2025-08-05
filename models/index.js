@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 
-dotenv.config(); // Load from .env
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,18 +12,24 @@ const __dirname = path.dirname(__filename);
 const db = {};
 const basename = path.basename(__filename);
 
-// Use Neon DB URL from .env
 const DATABASE_URL = process.env.DATABASE_URL;
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false, // Needed for NeonDB
+      rejectUnauthorized: false,
     },
   },
-  logging: false, // Disable SQL logging (optional)
+  pool: {
+    max: 10,         // Maximum number of connections
+    min: 1,          // Minimum number of connections
+    acquire: 30000,  // Max time (ms) to get a connection from pool
+    idle: 10000,     // Max time (ms) a connection can be idle before released
+  },
+  logging: false, 
 });
+
 
 const files = fs.readdirSync(__dirname).filter(file => {
   return (
