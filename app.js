@@ -7,11 +7,11 @@ import userRoutes from './routes/user.routes.js';
 import errorHandler from './middleware/error.handler.js';
 import db from './models/index.js';
 
+
 dotenv.config();
 const app = express();
 app.use(cors());
 const PORT = process.env.PORT;
-
 
 const startServer = async () => {
   try {
@@ -28,8 +28,6 @@ app.use('/api/auth', userRoutes);
     process.exit(1); 
   }
 };
-
-startServer();
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
