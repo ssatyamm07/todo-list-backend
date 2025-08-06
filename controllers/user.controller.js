@@ -6,24 +6,22 @@ export const register = async (req, res) => {
     const { username, email, password } = req.body;
   
     try {
-      // Basic input validation
       if (!username || !email || !password) {
         return res.status(400).json({ error: 'Username, email, and password are required.' });
       }
-  
-      // Check if email already exists
+      const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        error: 'Password must be at least 8 characters long, contain at least one uppercase letter and one special character.',
+      });
+    }
       const existingUser = await User.findOne({ where: { email } });
       if (existingUser) {
         return res.status(409).json({ error: 'User with this email already exists.' });
       }
-  
-      // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // Create new user
       const user = await User.create({ username, email, password: hashedPassword });
   
-      // Optional: exclude password in response
       const userResponse = {
         id: user.id,
         username: user.username,
@@ -49,7 +47,6 @@ export const register = async (req, res) => {
   };
   
 export const login = async (req, res) => {
-  // Removed duplicate block of code
     const { email, password } = req.body;
     try {
       const user = await User.findOne({ where: { email } });
@@ -59,8 +56,22 @@ export const login = async (req, res) => {
       if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
   
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-      res.json({ message: 'Login successful', token });
+      res.cookie('token', token,{
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict',
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+      });
+      res.json({message: 'Login Successful', user: { id: user.id, username: user.username, email: user.email }, });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   };
+  export const logout = (req, res)=>{
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict'
+    });
+    res.json({ message: 'Logged out successfully' });
+  }
