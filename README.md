@@ -1,89 +1,73 @@
-📦 Todo List Backend – Team Contribution Guide
-## 🧑‍🤝‍🧑 Team Members
+# Todo List Backend API
 
-| Name       | Role                     |
-|------------|--------------------------|
-| Satyam     | Backend                  |
-| Nishwanth  | Backend Developer        |
-| Vidya      | DataBase(Postgres)       |
+A Node.js and Express-based backend for managing tasks and user authentication, utilizing Sequelize ORM and PostgreSQL.
 
----
+## Features
 
-## ⚙️ Project Setup
+- **User Authentication**: Register and login with JWT-based authentication.
+- **Secure Passwords**: Password hashing using bcrypt.
+- **Session Management**: Cookie-based sessions for secure login.
+- **Task Management**: Full CRUD operations for tasks (Create, Read, Update, Delete).
+- **Database**: PostgreSQL database hosted on NeonDB.
+- **ORM**: Sequelize for database interaction.
+- **Environment Configuration**: Configurable settings for different environments.
+- **Validation & Error Handling**: Input validation and robust error handling.
+- **Modular Design**: Clean and maintainable code structure.
 
-### 1. Clone the Repository (Only Once)
+## Tech Stack
+
+- **Backend**: Node.js, Express.js
+- **Database**: PostgreSQL
+- **ORM**: Sequelize
+- **Authentication**: JWT
+- **Password Security**: Bcrypt
+- **Environment Management**: dotenv
+
+## Project Structure
+
+```
+ToDo-List-backend/
+├── config/        # Configuration files (e.g., database, authentication)
+├── controllers/   # Route controllers for handling requests
+├── middleware/    # Custom middleware (e.g., authentication, error handling)
+├── models/        # Sequelize models for database tables
+├── migrations/    # Sequelize migration files
+├── routes/        # API route definitions (e.g., tasks, users)
+├── .env.example   # Template for environment variables
+├── app.js         # Main application entry point
+├── package.json   # Project metadata and dependencies
+```
+
+## Getting Started
+
+### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/<your-username>/todo-list-backend.git
+git clone https://github.com/your-username/todo-list-backend.git
 cd todo-list-backend
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
-### 3. Setup Environment Variables
-Ask me(Satyam) for the `.env` file, at the time when you will start working on it.
-example structre
-```ini
-DATABASE_URL=neon_url(will share you soon)
-JWT_SECRET=your_jwt_secret(will share you soon)
-PORT=5000
-```
+### 3. Run the Application
 
----
-
-## 🌿 Branching Strategy
-
-| Branch       | Purpose                                   |
-|--------------|-------------------------------------------|
-| `main`       | Stable production code                   |
-| `dev`        | Active development, merged from features |
-| `feature/*`  | New features (e.g., `feature/user-auth`) |
-| `bugfix/*`   | Bug fixes (e.g., `bugfix/login-error`)   |
-| `hotfix/*`   | Urgent production fixes                  |
-
----
-
-## 🛠️ Git Workflow for Team
-
-### Pull the latest `dev` branch:
 ```bash
-git checkout dev
-git pull origin dev
+npm run dev
 ```
 
-### Create a feature branch:
-```bash
-git checkout -b feature/your-task-name
-```
+## API Endpoints
 
-### Work on your task, then stage and commit:
-```bash
-git add .
-git commit -m "Add: API for user login"
-```
+| Method | Endpoint             | Description                   |
+|--------|-----------------------|-------------------------------|
+| POST   | `/api/auth/register` | Register a new user           |
+| POST   | `/api/auth/login`    | Login and receive JWT cookie  |
+| POST   | `/api/auth/logout`   | Logout by clearing the cookie |
+| GET    | `/api/tasks`         | Retrieve all tasks (auth required) |
+| POST   | `/api/tasks`         | Create a new task             |
+| PUT    | `/api/tasks/:id`     | Update an existing task       |
+| DELETE | `/api/tasks/:id`     | Delete a task                 |
 
-### Push your branch to GitHub:
-```bash
-git push origin feature/your-task-name
-```
-
-### Open a Pull Request (PR):
-1. Go to GitHub → Pull Requests → New PR.
-2. Set **Base branch**: `dev`, **Compare**: `feature/your-task-name`.
-3. Add a description of the changes.
-
-### Review & Merge:
-- Another team member reviews the PR.
-- Once approved, merge the PR into `dev`.
-
----
-
-## 🧩 Branch Naming Convention
-
-| Type       | Format Example           |
-|------------|---------------------------|
-| Feature    | `feature/task-crud`       |
-| Bug Fix    | `bugfix/login-validation` |
-| Hot Fix    | `hotfix/deploy-error`     |
