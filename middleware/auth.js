@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 const JWT_SECRET = process.env.JWT_SECRET ;
 
 export const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies.token; 
+  //console.log('Received token:', req.cookies?.token);
 
   if (!token) return res.status(401).json({ error: 'No token provided' });
 
