@@ -3,6 +3,7 @@ import path from 'path';
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 dotenv.config();
 
@@ -42,7 +43,9 @@ const files = fs.readdirSync(__dirname).filter(file => {
 
 for (const file of files) {
   console.log('Loading model file:', file);
-  const { default: modelDefiner } = await import(path.join(__dirname, file));
+  const modelPath = pathToFileURL(path.join(__dirname, file)).href;
+
+  const { default: modelDefiner } = await import(modelPath);
   const model = modelDefiner(sequelize, Sequelize.DataTypes);
   db[model.name] = model;
 }
